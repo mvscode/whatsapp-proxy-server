@@ -1,4 +1,4 @@
-# Whatsapp_proxy_server-
+# Whatsapp_proxy_server
 
 第 1 步：安裝 Docker和 Docker Compose
 您可以按照所提供的說明快速輕鬆地在本地系統上激活代理服務。是時候啟動終端並通過輸入一些命令來安裝兩個必要的包了：
