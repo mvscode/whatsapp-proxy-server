@@ -43,3 +43,11 @@ docker build proxy/ -t whatsapp_proxy:1.0
 docker run -it -p 5222:5222 whatsapp_proxy:1.0
 
 docker-compose -f /root/proxy/proxy/ops/docker-compose.yml up
+
+
+一键回程测试脚本
+介绍
+
+共有 8 个测试节点：北京电信、北京联通、北京移动，上海电信、上海联通、上海移动，深圳电信、深圳联通、深圳移动，成都教育网。
+
+wget -qO- git.io/besttrace | bash
