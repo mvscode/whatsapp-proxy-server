@@ -32,6 +32,8 @@ Docker Compose version v2.15.1
 
 sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose
 
+sudo chmod +x /usr/bin/docker-compose
+
 git clone https://github.com/WhatsApp/proxy.git
 
 cd proxy/
@@ -40,6 +42,4 @@ docker build proxy/ -t whatsapp_proxy:1.0
 
 docker run -it -p 5222:5222 whatsapp_proxy:1.0
 
-sudo chmod +x /usr/bin/docker-compose
-
-docker-composee -f /root/proxy/proxy/ops/docker-compose.yml up
+docker-compose -f /root/proxy/proxy/ops/docker-compose.yml up
