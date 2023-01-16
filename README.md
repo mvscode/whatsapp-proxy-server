@@ -42,3 +42,4 @@ docker run -it -p 5222:5222 whatsapp_proxy:1.0
 
 sudo chmod +x /usr/bin/docker-compose
 
+docker-composee -f /root/proxy/proxy/ops/docker-compose.yml up
