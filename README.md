@@ -11,20 +11,27 @@ $ sudo apt install docker.io
 
 
 基於 CentOS、Fedora 和 RHEL 的發行版
+
 $ sudo yum update -y
 $ sudo yum install docker
+
+
 然後，您必須運行以下命令來啟動該服務，該服務將在操作系統重新啟動時自行啟動並保持運行，無需人工干預。
 
 $ sudo systemctl enable docker
 $ sudo systemctl start docker
-安裝 Docker 後，剩下要做的就是安裝 docker-compose，您可以通過運行以下命令來完成：
 
+
+安裝 Docker 後，剩下要做的就是安裝 docker-compose，您可以通過運行以下命令來完成：
 
 # Download the pkg
 sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose
+
 # Enable execution of the script
 sudo chmod +x /usr/bin/docker-compose
+
 如果一切按計劃進行，docker --version和docker-compose --version命令將產生以下結果：
+
 Docker version 20.10.12, build 20.10.12-0ubuntu2~20.04.1
 Docker Compose version v2.15.1
 
