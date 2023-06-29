@@ -8,8 +8,9 @@
 
 $ sudo apt update && sudo apt upgrade 
 $ sudo apt install docker.io
-基於 CentOS、Fedora 和 RHEL 的發行版
 
+
+基於 CentOS、Fedora 和 RHEL 的發行版
 $ sudo yum update -y
 $ sudo yum install docker
 然後，您必須運行以下命令來啟動該服務，該服務將在操作系統重新啟動時自行啟動並保持運行，無需人工干預。
