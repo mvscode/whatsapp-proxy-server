@@ -1,3 +1,7 @@
+sudo chmod +x whatsapp_proxy_server.sh
+sudo ./whatsapp_proxy_server.sh
+
+
 # Whatsapp_proxy_server
 
 第 1 步：安裝 Docker和 Docker Compose
