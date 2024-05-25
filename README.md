@@ -1,3 +1,4 @@
+wget https://gitee.com/mvscode/frps-onekey/raw/master/
 sudo chmod +x whatsapp_proxy_server.sh
 sudo ./whatsapp_proxy_server.sh
 
