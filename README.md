@@ -1,4 +1,4 @@
-wget https://github.com/MvsCode/Whatsapp_proxy_server/blob/main/whatsapp_proxy_server.sh
+wget https://raw.githubusercontent.com/MvsCode/Whatsapp_proxy_server/main/whatsapp_proxy_server.sh
 
 chmod +x whatsapp_proxy_server.sh
 
