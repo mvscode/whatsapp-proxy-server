@@ -45,6 +45,16 @@ run_proxy() {
     docker-compose -f /root/proxy/proxy/ops/docker-compose.yml up || { echo "Docker Compose failed"; exit 1; }
 }
 
+# Check if WhatsApp proxy service is running
+    if sudo docker ps | grep whatsapp_proxy > /dev/null
+    then
+        echo "WhatsApp proxy service is running successfully."
+    else
+        echo "WhatsApp proxy service failed to start."
+        exit 1
+    fi
+}
+
 # Main script execution
 update_system
 install_docker
