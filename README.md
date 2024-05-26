@@ -1,8 +1,8 @@
 wget https://github.com/MvsCode/Whatsapp_proxy_server/blob/main/whatsapp_proxy_server.sh
 
-sudo chmod +x whatsapp_proxy_server.sh
+chmod +x whatsapp_proxy_server.sh
 
-sudo ./whatsapp_proxy_server.sh
+./whatsapp_proxy_server.sh
 
 
 # Whatsapp_proxy_server
