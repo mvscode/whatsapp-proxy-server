@@ -24,7 +24,7 @@ fi
 # 確認 Docker 安裝成功
 docker --version
 
-# 安裝 Docker Compose (可選)
+# 安裝 Docker Compose
 if ! command -v docker-compose &> /dev/null; then
     echo "Docker Compose 未安裝。正在安裝 Docker Compose..."
     sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
@@ -59,8 +59,9 @@ docker build . -t whatsapp_proxy:1.0
 # 運行代理容器
 docker run -it -p 80:80 -p 443:443 -p 5222:5222 -p 8080:8080 -p 8443:8443 -p 8222:8222 -p 8199:8199 -p 587:587 -p 7777:7777 whatsapp_proxy:1.0
 
+# 使用 Docker compose 自動化容器生命週期
 docker-compose -f /root/proxy/proxy/ops/docker-compose.yml up
 
 # 提示用戶檢查連接
-echo "代理已啟動。請訪問 http://<host-ip>:8199 確認 HAProxy 正在運行。"
+echo "代理已啟動。請訪問 http://<${defIP}>:8199 確認 HAProxy 正在運行。"
 echo "注意：如果您的公共 IP 地址不可訪問，您需要為使用的路由器/網關啟用端口轉發（上述端口）。"
