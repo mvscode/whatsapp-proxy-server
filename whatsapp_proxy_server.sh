@@ -53,7 +53,6 @@ run_proxy() {
         echo "WhatsApp proxy service failed to start."
         exit 1
     fi
-}
 
 # Main script execution
 update_system
