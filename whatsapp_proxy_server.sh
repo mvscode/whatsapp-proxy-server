@@ -1,8 +1,15 @@
 #!/bin/bash
 
 # 更新系統並安裝必要的依賴
-sudo apt-get update
-sudo apt-get install -y curl git
+echo "Updating system packages..."
+if [ -f /etc/debian_version ]; then
+    sudo apt update && sudo apt upgrade -y
+elif [ -f /etc/redhat-release ]; then
+    sudo yum update -y
+else
+    echo "Unsupported Linux distribution."
+    exit 1
+fi
 
 # 安裝 Docker
 if ! command -v docker &> /dev/null; then
