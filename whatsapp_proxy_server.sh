@@ -83,6 +83,19 @@ run_proxy() {
     local proxy_dir="proxy"
     local compose_file="/root/proxy/proxy/ops/docker-compose.yml"
 
+    # Check if WhatsApp Proxy is already installed
+    if sudo docker ps --format '{{.Names}}' | grep -q "whatsapp_proxy"; then
+        echo -e "${YELLOW}WhatsApp Proxy is already installed.${NC}"
+        read -rp "Do you want to reinstall? (Y/N) [N]: " -n 1 -r reinstall
+        echo
+        reinstall=${reinstall:-N} # Default to 'N' if user presses Enter
+
+        if [[ "$reinstall" =~ ^[Nn]$ ]]; then
+            echo -e "${GREEN}Skipping WhatsApp Proxy installation.${NC}"
+            return
+        fi
+    fi
+
     if [ -d "$proxy_dir" ]; then
         echo -e "${YELLOW}Removing existing '$proxy_dir' directory...${NC}"
         rm -rf "$proxy_dir"
@@ -92,8 +105,18 @@ run_proxy() {
     git clone https://github.com/WhatsApp/proxy.git "$proxy_dir" || { echo -e "${RED}Failed to clone repository${NC}"; exit 1; }
 
     pushd "$proxy_dir" > /dev/null || { echo -e "${RED}Failed to enter directory${NC}"; exit 1; }
-    echo -e "${GREEN}Building Docker image...${NC}"
-    sudo docker-compose -f "$compose_file" up -d || { echo -e "${RED}Docker Compose failed. Check logs for more information.${NC}"; exit 1; }
+    echo -e "${YELLOW}Checking user confirmation to run WhatsApp Proxy...${NC}"
+    read -rp "Do you want to run the WhatsApp Proxy service? (Y/N) [Y]: " -n 1 -r confirm
+    echo
+    confirm=${confirm:-Y} # Default to 'Y' if user presses Enter
+
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        echo -e "${GREEN}Building Docker image...${NC}"
+        sudo docker-compose -f "$compose_file" up -d || { echo -e "${RED}Docker Compose failed. Check logs for more information.${NC}"; exit 1; }
+    else
+        echo -e "${YELLOW}Cancelled running WhatsApp Proxy.${NC}"
+    fi
+
     popd > /dev/null
 }
 
@@ -107,9 +130,66 @@ check_proxy() {
     fi
 }
 
+# Function to manage the WhatsApp proxy service
+manage_proxy() {
+    local proxy_dir="proxy"
+    local compose_file="/root/proxy/proxy/ops/docker-compose.yml"
+
+    echo -e "${YELLOW}Manage WhatsApp Proxy Service${NC}"
+    echo -e "1. Stop WhatsApp Proxy"
+    echo -e "2. Start WhatsApp Proxy"
+    echo -e "3. Restart WhatsApp Proxy"
+    echo -e "4. Configure WhatsApp Proxy"
+
+    read -rp "Enter your choice (1-4) or press Enter to exit: " choice
+
+    case $choice in
+        1)
+            echo -e "${YELLOW}Stopping WhatsApp Proxy...${NC}"
+            sudo docker-compose -f "$compose_file" stop
+            echo -e "${GREEN}WhatsApp Proxy stopped successfully.${NC}"
+            ;;
+        2)
+            echo -e "${GREEN}Starting WhatsApp Proxy...${NC}"
+            sudo docker-compose -f "$compose_file" start
+            echo -e "${GREEN}WhatsApp Proxy started successfully.${NC}"
+            ;;
+        3)
+            echo -e "${YELLOW}Restarting WhatsApp Proxy...${NC}"
+            sudo docker-compose -f "$compose_file" restart
+            echo -e "${GREEN}WhatsApp Proxy restarted successfully.${NC}"
+            ;;
+        4)
+            echo -e "${GREEN}Configuring WhatsApp Proxy...${NC}"
+            ${EDITOR:-nano} "$compose_file"
+            ;;
+        "")
+            echo -e "${GREEN}Exiting script...${NC}"
+            exit 0
+            ;;
+        *)
+           echo -e "${RED}Invalid choice. Exiting script.${NC}"
+           exit 1
+           ;;
+   esac
+}
+
 # Main script execution
 update_system
 install_docker
 install_docker_compose
 run_proxy
 check_proxy
+
+# Loop to manage WhatsApp Proxy service
+while true; do
+    read -rp "Enter 'manage WhatsApp proxy' to manage the service or press Enter to exit: " command
+    if [ -z "$command" ]; then
+        echo -e "${GREEN}Exiting script...${NC}"
+        exit 0
+    elif [ "$command" == "manage WhatsApp proxy" ]; then
+        manage_proxy
+    else
+        echo -e "${RED}Invalid command. Please try again.${NC}"
+    fi
+done
