@@ -54,11 +54,11 @@ install_docker_compose() {
 
 # Function to clone WhatsApp Proxy repository and run the proxy
 run_proxy() {
-    git clone https://github.com/WhatsApp/proxy.git || { echo "Failed to clone repository"; exit 1; }
+    git clone https://github.com/WhatsApp/proxy.git  || { echo "Failed to clone repository"; exit 1; }
     cd proxy || { echo "Failed to enter directory"; exit 1; }
-    docker build proxy/ -t whatsapp_proxy:1.0 || { echo "Docker build failed"; exit 1; }
-    docker run -it -p 5222:5222 whatsapp_proxy:1.0 || { echo "Failed to run Docker"; exit 1; }
-    docker-compose -f /root/proxy/proxy/ops/docker-compose.yml up || { echo "Docker Compose failed"; exit 1; }
+    docker build -t whatsapp_proxy:1.0 proxy/ || { echo "Docker build failed"; exit 1; }
+    docker run -it -p 5222:5211 whatsapp_proxy:1.0 || { echo "Failed to run Docker"; exit 1; }
+    docker-compose -f /root/proxy/proxy/ops/docker-compose.yml  up || { echo "Docker Compose failed"; exit 1; }
 }
 
 # Check if WhatsApp proxy service is running
