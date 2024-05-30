@@ -184,11 +184,11 @@ check_proxy
 
 # Loop to manage WhatsApp Proxy service
 while true; do
-    read -rp "Enter 'manage WhatsApp proxy' to manage the service or press Enter to exit: " command
+    read -rp "Enter 'WA proxy' to manage the service or press Enter to exit: " command
     if [ -z "$command" ]; then
         echo -e "${GREEN}Exiting script...${NC}"
         exit 0
-    elif [ "$command" == "manage WhatsApp proxy" ]; then
+    elif [ "$command" == "WA proxy" ]; then
         manage_proxy
     else
         echo -e "${RED}Invalid command. Please try again.${NC}"
