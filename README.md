@@ -11,3 +11,9 @@ This Bash script automates the process of updating system packages, installing D
 - Linux operating system (tested on Debian and CentOS)
 - Git installed
 - Internet connection
+
+
+```bash
+wget https://raw.githubusercontent.com/MvsCode/Whatsapp-Proxy-Server/main/whatsapproxy.sh
+
+```
