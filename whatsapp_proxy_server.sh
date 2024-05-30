@@ -59,8 +59,7 @@ if sudo docker ps | grep -q "whatsapp_proxy"; then
 else
     echo "WhatsApp proxy service failed to start."
     exit 1
-}
-
+    
 # Main script execution
 update_system
 install_docker
