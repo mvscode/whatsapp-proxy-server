@@ -6,6 +6,22 @@
 # then clones the WhatsApp Proxy repository from GitHub and runs the Proxy service.
 # It also includes some auxiliary functions, such as checking if the Proxy service is running.
 
+if ! command -v shellcheck &> /dev/null
+then
+    echo "shellcheck could not be found. Installing shellcheck..."
+    if [ -f /etc/debian_version ]; then
+        sudo apt-get install -y shellcheck
+    elif [ -f /etc/redhat-release ]; then
+        sudo yum install -y shellcheck
+    else
+        echo "Unsupported Linux distribution. Please install shellcheck manually."
+        exit 1
+    fi
+fi
+
+# Disable some common shellcheck warnings
+# shellcheck disable=SC1090,SC1091,SC2086,SC2155
+
 # Colors for better output formatting
 RED='\033[0;31m'
 GREEN='\033[0;32m'
