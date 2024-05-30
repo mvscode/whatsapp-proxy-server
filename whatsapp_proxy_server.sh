@@ -62,12 +62,12 @@ run_proxy() {
 }
 
 # Check if WhatsApp proxy service is running
-if [ $(sudo docker ps | grep "whatsapp_proxy") -ne 0 ]; then
+if sudo docker ps | grep -q "whatsapp_proxy"; then
     echo "WhatsApp proxy service is running successfully."
 else
     echo "WhatsApp proxy service failed to start."
     exit 1
-fi
+}
 
 # 主脚本执行
 update_system() {
