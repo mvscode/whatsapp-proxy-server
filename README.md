@@ -17,3 +17,8 @@ This Bash script automates the process of updating system packages, installing D
 wget https://raw.githubusercontent.com/MvsCode/Whatsapp-Proxy-Server/main/whatsapproxy.sh
 
 ```
+
+```bash
+wget https://raw.githubusercontent.com/MvsCode/Whatsapp-Proxy-Server/main/whatsapproxy.sh && chmod +x whatsapproxy.sh && ./whatsapproxy.sh
+
+```
