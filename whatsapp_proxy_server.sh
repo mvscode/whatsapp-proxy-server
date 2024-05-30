@@ -62,16 +62,33 @@ run_proxy() {
 }
 
 # Check if WhatsApp proxy service is running
-    if sudo docker ps | grep whatsapp_proxy > /dev/null
-    then
-        echo "WhatsApp proxy service is running successfully."
-    else
-        echo "WhatsApp proxy service failed to start."
-        exit 1
-    fi
+if [ $(sudo docker ps | grep "whatsapp_proxy") -ne 0 ]; then
+    echo "WhatsApp proxy service is running successfully."
+else
+    echo "WhatsApp proxy service failed to start."
+    exit 1
+fi
 
-# Main script execution
-update_system
-install_docker
-install_docker_compose
-run_proxy
+# 主脚本执行
+update_system() {
+    echo "正在更新系统..."
+    sudo apt-get update && sudo apt-get upgrade
+}
+
+install_docker() {
+    echo "正在安装Docker... "
+    # 使用官方脚本自动安装Docker
+    curl -fsSL https://get.docker.com  | bash
+}
+
+install_docker-compose() {
+    echo "正在安装Docker Compose... "
+    # 使用apt命令快速安装Docker Compose
+    sudo apt install docker-compose
+}
+
+run_proxy() {
+    echo "正在运行代理服务..."
+    # 假设代理服务已经配置好，可以直接启动
+    docker-compose up -d proxy
+}
