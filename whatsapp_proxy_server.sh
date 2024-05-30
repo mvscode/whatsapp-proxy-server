@@ -1,6 +1,5 @@
 ## Script Code Description
 
-```bash
 #!/bin/bash
 
 # This script updates system packages, installs Docker and Docker Compose,
