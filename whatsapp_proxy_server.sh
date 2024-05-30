@@ -11,7 +11,13 @@ update_system() {
     if [ "$confirm" == "Y" ] || [ "$confirm" == "y" ]; then
         echo "Updating system packages..."
         if [ -f /etc/debian_version ]; then
-            sudo apt update && sudo apt full-upgrade -y || { echo "Update failed"; exit 1; }
+            # Remove or comment out any outdated or unavailable repositories
+            sudo sed -i '/old-releases.ubuntu.com/s/^/#/' /etc/apt/sources.list
+            sudo sed -i '/vbernat\/haproxy-2.8/s/^/#/' /etc/apt/sources.list
+            sudo sed -i '/vbernat\/haproxy-2.9/s/^/#/' /etc/apt/sources.list
+
+            sudo apt update
+            sudo apt full-upgrade -y || { echo "Update failed"; exit 1; }
         elif [ -f /etc/redhat-release ]; then
             sudo yum update -y || { echo "Update failed"; exit 1; }
         else
@@ -24,7 +30,7 @@ update_system() {
     fi
 }
 
-## Function to install Docker
+# Function to install Docker
 install_docker() {
     if ! command -v docker &> /dev/null; then
         echo "Docker is not installed. Installing Docker..."
@@ -40,7 +46,7 @@ install_docker() {
     fi
 }
 
-## Function to install Docker Compose
+# Function to install Docker Compose
 install_docker_compose() {
     if ! command -v docker-compose &> /dev/null; then
         echo "Docker Compose is not installed. Installing Docker Compose..."
@@ -57,7 +63,7 @@ install_docker_compose() {
     fi
 }
 
-## Function to clone WhatsApp Proxy repository and run the proxy
+# Function to clone WhatsApp Proxy repository and run the proxy
 run_proxy() {
     echo "Cloning WhatsApp Proxy repository..."
     git clone https://github.com/WhatsApp/proxy.git || { echo "Failed to clone repository"; exit 1; }
@@ -70,7 +76,7 @@ run_proxy() {
     docker-compose -f ops/docker-compose.yml up -d || { echo "Docker Compose failed"; exit 1; }
 }
 
-## Check if WhatsApp proxy service is running
+# Check if WhatsApp proxy service is running
 check_proxy() {
     if sudo docker ps | grep -q "whatsapp_proxy"; then
         echo "WhatsApp proxy service is running successfully."
@@ -80,7 +86,7 @@ check_proxy() {
     fi
 }
 
-## Main script execution
+# Main script execution
 update_system
 install_docker
 install_docker_compose
