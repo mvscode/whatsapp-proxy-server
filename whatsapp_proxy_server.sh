@@ -73,7 +73,7 @@ run_proxy() {
     echo "Running Docker container..."
     docker run -d -p 5222:5211 whatsapp_proxy:1.0 || { echo "Failed to run Docker"; exit 1; }
     echo "Starting Docker Compose..."
-    docker-compose -f ops/docker-compose.yml up -d || { echo "Docker Compose failed"; exit 1; }
+    docker-compose -f /root/proxy/proxy/ops/docker-compose.yml up -d || { echo "Docker Compose failed"; exit 1; }
 }
 
 # Check if WhatsApp proxy service is running
