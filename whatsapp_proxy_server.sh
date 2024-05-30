@@ -8,7 +8,7 @@ update_system() {
 
     read -p "Do you want to continue with the update? (Y/N): " confirm
 
-    if [ "$confirm" == "Y" ] || [ "$confirm" == "y" ]; then
+    if [ "$confirm" == "Y" ] || [ "$confirm" == "y" ] || [ -z "$confirm" ]; then
         echo "Updating system packages..."
         if [ -f /etc/debian_version ]; then
             # Remove or comment out any outdated or unavailable repositories
