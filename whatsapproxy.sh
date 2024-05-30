@@ -6,36 +6,6 @@
 # then clones the WhatsApp Proxy repository from GitHub and runs the Proxy service.
 # It also includes some auxiliary functions, such as checking if the Proxy service is running.
 
-## Check if shellcheck is installed
-if ! command -v shellcheck &> /dev/null; then
-    echo "shellcheck is not installed, attempting to install..."
-    
-    ## Install shellcheck based on the distribution
-    distro=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
-    case "$distro" in
-        "\"Debian GNU/Linux\"" | "\"Ubuntu\"")
-            sudo apt-get update
-            sudo apt-get install -y shellcheck
-            ;;
-        "\"CentOS Linux\"" | "\"Red Hat Enterprise Linux\"")
-            sudo yum install -y epel-release
-            sudo yum install -y shellcheck  
-            ;;
-        *)
-            echo "Unsupported Linux distribution, please install shellcheck manually"
-            exit 1
-            ;;
-    esac
-    
-    ## Check if installation was successful
-    if ! command -v shellcheck &> /dev/null; then
-        echo "Failed to install shellcheck, please install manually"
-        exit 1
-    fi
-fi
-
-## Run shellcheck
-shellcheck whatsapproxy.sh
 
 # Colors for better output formatting
 RED='\033[0;31m'
