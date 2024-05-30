@@ -6,22 +6,6 @@
 # then clones the WhatsApp Proxy repository from GitHub and runs the Proxy service.
 # It also includes some auxiliary functions, such as checking if the Proxy service is running.
 
-# Check and install shellcheck (if not installed)
-if ! command -v shellcheck &> /dev/null; then
-    echo -e "${YELLOW}shellcheck is not installed, attempting to install...${NC}"
-    if [ -f /etc/debian_version ]; then
-        sudo apt-get install -y shellcheck || { echo -e "${RED}Failed to install shellcheck${NC}"; exit 1; }
-    elif [ -f /etc/redhat-release ]; then
-        sudo yum install -y epel-release
-        sudo yum install -y shellcheck || { echo -e "${RED}Failed to install shellcheck${NC}"; exit 1; }
-    else
-        echo -e "${RED}Unsupported Linux distribution, unable to install shellcheck${NC}"
-    fi
-fi
-
-# Use shellcheck to check the current script
-shellcheck "$0"
-
 # Colors for better output formatting
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -31,17 +15,18 @@ NC='\033[0m' # No Color
 # Function to update system packages
 update_system() {
     echo -e "${YELLOW}Backing up files before updating system packages...${NC}"
-    sudo tar -cvf /tmp/backup.tar /etc/*
-    
+    sudo tar -czf /tmp/backup.tar.gz /etc/*
+
     echo -e "${YELLOW}Checking user confirmation...${NC}"
-    read -p "Do you want to continue with the update? (Y/N) [Y]: " confirm
+    read -rp "Do you want to continue with the update? (Y/N) [Y]: " -n 1 -r confirm
+    echo
     confirm=${confirm:-Y} # Default to 'Y' if user presses Enter
 
-    if [ "$confirm" == "Y" ] || [ "$confirm" == "y" ]; then
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
         echo -e "${GREEN}Updating system packages...${NC}"
         if [ -f /etc/debian_version ]; then
-            sudo apt update
-            sudo apt full-upgrade -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
+            sudo apt-get update
+            sudo apt-get full-upgrade -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
         elif [ -f /etc/redhat-release ]; then
             sudo yum update -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
         else
@@ -58,15 +43,15 @@ update_system() {
 install_docker() {
     if ! command -v docker &> /dev/null; then
         echo -e "${YELLOW}Docker is not installed. Installing Docker...${NC}"
-        curl -fsSL https://get.docker.com | sudo sh
+        curl -fsSL https://get.docker.com | sh
         if [ $? -ne 0 ]; then
             echo -e "${RED}Docker installation failed${NC}"
             exit 1
         fi
-        sudo usermod -aG docker $USER
+        sudo usermod -aG docker "$USER"
         echo -e "${GREEN}Docker installed successfully. Please log out and log back in for changes to take effect.${NC}"
     else
-        docker_version=$(docker --version | awk '{print $3}')
+        docker_version=$(docker --version | awk '{print $3}' | sed 's/,//')
         echo -e "${YELLOW}Docker version $docker_version is already installed.${NC}"
     fi
 }
@@ -76,9 +61,9 @@ install_docker_compose() {
     if ! command -v docker-compose &> /dev/null; then
         echo -e "${YELLOW}Docker Compose is not installed. Installing Docker Compose...${NC}"
         if [ -f /etc/debian_version ]; then
-            sudo apt install docker-compose -y || { echo -e "${RED}Docker Compose installation failed${NC}"; exit 1; }
+            sudo apt-get install -y docker-compose || { echo -e "${RED}Docker Compose installation failed${NC}"; exit 1; }
         elif [ -f /etc/redhat-release ]; then
-            sudo yum install docker-compose -y || { echo -e "${RED}Docker Compose installation failed${NC}"; exit 1; }
+            sudo yum install -y docker-compose || { echo -e "${RED}Docker Compose installation failed${NC}"; exit 1; }
         else
             echo -e "${RED}Unsupported Linux distribution.${NC}"
             exit 1
@@ -105,7 +90,7 @@ run_proxy() {
 
     echo -e "${GREEN}Cloning WhatsApp Proxy repository...${NC}"
     git clone https://github.com/WhatsApp/proxy.git "$proxy_dir" || { echo -e "${RED}Failed to clone repository${NC}"; exit 1; }
-    
+
     pushd "$proxy_dir" > /dev/null || { echo -e "${RED}Failed to enter directory${NC}"; exit 1; }
     echo -e "${GREEN}Building Docker image...${NC}"
     sudo docker-compose -f "$compose_file" up -d || { echo -e "${RED}Docker Compose failed. Check logs for more information.${NC}"; exit 1; }
@@ -114,7 +99,7 @@ run_proxy() {
 
 # Check if WhatsApp proxy service is running
 check_proxy() {
-    if sudo docker ps | grep -q "whatsapp_proxy"; then
+    if sudo docker ps --format '{{.Names}}' | grep -q "whatsapp_proxy"; then
         echo -e "${GREEN}WhatsApp proxy service is running successfully.${NC}"
     else
         echo -e "${RED}WhatsApp proxy service failed to start.${NC}"
