@@ -2,13 +2,29 @@
 
 # Function to update system packages
 update_system() {
-    echo "Updating system packages..."
-    if [ -f /etc/debian_version ]; then
-        sudo apt update && sudo apt upgrade -y || { echo "Update failed"; exit 1; }
-    elif [ -f /etc/redhat-release ]; then
-        sudo yum update -y || { echo "Update failed"; exit 1; }
+    echo "Backing up files before updating system packages... "
+    tar -cvf backup.tar  /etc/*
+    echo "Checking user confirmation... "
+
+    read -p "Do you want to continue with the update? (Y/N): "
+    confirm=$?
+
+    if [ $confirm -eq 0 ]; then
+        echo "Updating system packages... "
+        if [ -f /etc/debian_version ]; then
+            sudo apt update && sudo apt upgrade -y || {
+                echo "Update failed"; exit 1;
+            }
+        elif [ -f /etc/redhat-release ]; then
+            sudo yum update -y || {
+                echo "Update failed"; exit 1;
+            }
+        else
+            echo "Unsupported Linux distribution."
+            exit 1
+        fi
     else
-        echo "Unsupported Linux distribution."
+        echo "Update cancelled."
         exit 1
     fi
 }
