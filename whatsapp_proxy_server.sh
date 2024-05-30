@@ -1,6 +1,6 @@
-## Script Code Description
-
 #!/bin/bash
+
+## Script Code Description
 
 # This script updates system packages, installs Docker and Docker Compose,
 # then clones the WhatsApp Proxy repository from GitHub and runs the Proxy service.
