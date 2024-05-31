@@ -1,11 +1,17 @@
 #!/bin/bash
+# chkconfig: 2345 99 01
+# description: Manage WhatsApp Proxy Service
 
-## Script Code Description
-
-# This script updates system packages, installs Docker and Docker Compose,
-# then clones the WhatsApp Proxy repository from GitHub and runs the Proxy service.
-# It also includes some auxiliary functions, such as checking if the Proxy service is running.
-
+### BEGIN INIT INFO
+# Provides:          whatsapp-proxy
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Manage WhatsApp Proxy Service
+# Description:       This script manages the WhatsApp Proxy service.
+#                    It can install, start, stop, restart, and configure the service.
+### END INIT INFO
 
 # Colors for better output formatting
 RED='\033[0;31m'
@@ -118,7 +124,7 @@ run_proxy() {
         echo -e "${YELLOW}Cancelled running WhatsApp Proxy.${NC}"
     fi
 
-    popd > /dev/null
+    popd > /dev/null || exit
 }
 
 # Check if WhatsApp proxy service is running
@@ -136,15 +142,11 @@ manage_proxy() {
     local proxy_dir="proxy"
     local compose_file="/root/proxy/proxy/ops/docker-compose.yml"
 
-    echo -e "${YELLOW}Manage WhatsApp Proxy Service${NC}"
-    echo -e "1. Stop WhatsApp Proxy"
-    echo -e "2. Start WhatsApp Proxy"
-    echo -e "3. Restart WhatsApp Proxy"
-    echo -e "4. Configure WhatsApp Proxy"
-
-    read -rp "Enter your choice (1-4) or press Enter to exit: " choice
-
-    case $choice in
+    case "$1" in
+        0)
+            echo -e "${YELLOW}Checking WhatsApp Proxy status...${NC}"
+            sudo docker-compose -f "$compose_file" ps
+            ;;
         1)
             echo -e "${YELLOW}Stopping WhatsApp Proxy...${NC}"
             sudo docker-compose -f "$compose_file" stop
@@ -164,33 +166,67 @@ manage_proxy() {
             echo -e "${GREEN}Configuring WhatsApp Proxy...${NC}"
             ${EDITOR:-nano} "$compose_file"
             ;;
-        "")
-            echo -e "${GREEN}Exiting script...${NC}"
-            exit 0
-            ;;
         *)
-           echo -e "${RED}Invalid choice. Exiting script.${NC}"
-           exit 1
-           ;;
-   esac
+            echo -e "${YELLOW}Manage WhatsApp Proxy Service${NC}"
+            echo -e "0. Check WhatsApp Proxy Status"
+            echo -e "1. Stop WhatsApp Proxy"
+            echo -e "2. Start WhatsApp Proxy"
+            echo -e "3. Restart WhatsApp Proxy"
+            echo -e "4. Configure WhatsApp Proxy"
+
+            read -rp "Enter your choice (0-4) or press Enter to exit: " choice
+
+            case "$choice" in
+                0|1|2|3|4)
+                    manage_proxy "$choice"
+                    ;;
+                "")
+                    echo -e "${GREEN}Exiting script...${NC}"
+                    exit 0
+                    ;;
+                *)
+                    echo -e "${RED}Invalid choice. Exiting script.${NC}"
+                    exit 1
+                    ;;
+            esac
+            ;;
+    esac
 }
 
-# Main script execution
-update_system
-install_docker
-install_docker_compose
-run_proxy
-check_proxy
+usage_install() {
+    echo -e "${RED}Usage: $0 install${NC}"
+    echo -e "  Update system packages, install Docker and Docker Compose, clone WhatsApp Proxy repository, and run the proxy service."
+}
 
-# Loop to manage WhatsApp Proxy service
-while true; do
-    read -rp "Enter 'WA proxy' to manage the service or press Enter to exit: " command
-    if [ -z "$command" ]; then
-        echo -e "${GREEN}Exiting script...${NC}"
-        exit 0
-    elif [ "$command" == "WA proxy" ]; then
+case "$1" in
+    install)
+        update_system
+        install_docker
+        install_docker_compose
+        run_proxy
+        check_proxy
+        ;;
+    manage)
         manage_proxy
-    else
-        echo -e "${RED}Invalid command. Please try again.${NC}"
-    fi
-done
+        ;;
+    status)
+        manage_proxy 0
+        ;;
+    stop)
+        manage_proxy 1
+        ;;
+    start)
+        manage_proxy 2
+        ;;
+    restart)
+        manage_proxy 3
+        ;;
+    config)
+        manage_proxy 4
+        ;;
+    *)
+        exit 1
+        ;;
+esac
+
+exit 0
