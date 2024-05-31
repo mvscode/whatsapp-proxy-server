@@ -19,29 +19,83 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
+# Function to check if system packages are up-to-date
+check_system_updates() {
+    if [ -f /etc/debian_version ]; then
+        sudo apt-get update
+        if ! sudo apt-get upgrade -s | grep -q "^0 upgraded"; then
+        echo -e "${YELLOW}Warning: Updating system packages may cause unexpected issues. Please ensure you have a backup of your system before proceeding.${NC}"
+            read -rp "Do you want to update to the latest packages? (Y/N) [Y]: " -n 1 -r confirm
+            echo
+            confirm=${confirm:-Y} # Default to 'Y' if user presses Enter
+
+            if [[ "$confirm" =~ ^[Yy]$ ]]; then
+                update_system
+            else
+                echo -e "${YELLOW}Skipping system package update.${NC}"
+            fi
+        else
+            echo -e "${GREEN}Your system packages are up-to-date.${NC}"
+        fi
+    elif [ -f /etc/redhat-release ]; then
+        sudo yum check-update
+        if [ $? -ne 0 ]; then
+            echo -e "${YELLOW}Your system packages are not up-to-date.${NC}"
+            read -rp "Do you want to update to the latest packages? (Y/N) [Y]: " -n 1 -r confirm
+            echo
+            confirm=${confirm:-Y} # Default to 'Y' if user presses Enter
+
+            if [[ "$confirm" =~ ^[Yy]$ ]]; then
+                update_system
+            else
+                echo -e "${YELLOW}Skipping system package update.${NC}"
+            fi
+        else
+            echo -e "${GREEN}Your system packages are up-to-date.${NC}"
+        fi
+    else
+        echo -e "${RED}Unsupported Linux distribution.${NC}"
+        exit 1
+    fi
+}
+
+# Function to generate QR code for the connection link
+generate_qr_code() {
+    local connection_link="$1"
+
+    # Install qrencode if not present
+    if ! command -v qrencode &> /dev/null; then
+        echo -e "${YELLOW}qrencode is not installed. Installing qrencode...${NC}"
+        if [ -f /etc/debian_version ]; then
+            sudo apt-get install -y qrencode || { echo -e "${RED}qrencode installation failed${NC}"; return 1; }
+        elif [ -f /etc/redhat-release ]; then
+            sudo yum install -y qrencode || { echo -e "${RED}qrencode installation failed${NC}"; return 1; }
+        else
+            echo -e "${RED}Unsupported Linux distribution.${NC}"
+            return 1
+        fi
+    fi
+
+    # Generate QR code
+    qr_code=$(qrencode -o "$qr_code_file" "$connection_link")
+
+    # Display QR code
+    echo "$qr_code"
+}
+
 # Function to update system packages
 update_system() {
     echo -e "${YELLOW}Backing up files before updating system packages...${NC}"
     sudo tar -czf /tmp/backup.tar.gz /etc/*
 
-    echo -e "${YELLOW}Checking user confirmation...${NC}"
-    read -rp "Do you want to continue with the update? (Y/N) [Y]: " -n 1 -r confirm
-    echo
-    confirm=${confirm:-Y} # Default to 'Y' if user presses Enter
-
-    if [[ "$confirm" =~ ^[Yy]$ ]]; then
-        echo -e "${GREEN}Updating system packages...${NC}"
-        if [ -f /etc/debian_version ]; then
-            sudo apt-get update
-            sudo apt-get full-upgrade -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
-        elif [ -f /etc/redhat-release ]; then
-            sudo yum update -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
-        else
-            echo -e "${RED}Unsupported Linux distribution.${NC}"
-            exit 1
-        fi
+    echo -e "${GREEN}Updating system packages...${NC}"
+    if [ -f /etc/debian_version ]; then
+        sudo apt-get update
+        sudo apt-get full-upgrade -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
+    elif [ -f /etc/redhat-release ]; then
+        sudo yum update -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
     else
-        echo -e "${YELLOW}Update cancelled.${NC}"
+        echo -e "${RED}Unsupported Linux distribution.${NC}"
         exit 1
     fi
 }
@@ -89,6 +143,8 @@ install_docker_compose() {
 run_proxy() {
     local proxy_dir="proxy"
     local compose_file="/root/proxy/proxy/ops/docker-compose.yml"
+    local default_port=$(grep -oP '(?<=ports:\n  - )\d+' "$compose_file" | head -n 1)
+    local proxy_port=$default_port
 
     # Check if WhatsApp Proxy is already installed
     if sudo docker ps --format '{{.Names}}' | grep -q "whatsapp_proxy"; then
@@ -112,6 +168,18 @@ run_proxy() {
     git clone https://github.com/WhatsApp/proxy.git "$proxy_dir" || { echo -e "${RED}Failed to clone repository${NC}"; exit 1; }
 
     pushd "$proxy_dir" > /dev/null || { echo -e "${RED}Failed to enter directory${NC}"; exit 1; }
+
+    # Check if the default port is available
+    while true; do
+        if ! sudo lsof -i :"$proxy_port" -sTCP:LISTEN -t &> /dev/null; then
+            break
+        else
+            echo -e "${YELLOW}Port $proxy_port is already in use. Please enter a new port number.${NC}"
+            read -rp "Enter port number [${default_port}]: " new_port
+            proxy_port=${new_port:-$default_port}
+        fi
+    done
+
     echo -e "${YELLOW}Checking user confirmation to run WhatsApp Proxy...${NC}"
     read -rp "Do you want to run the WhatsApp Proxy service? (Y/N) [Y]: " -n 1 -r confirm
     echo
@@ -119,7 +187,7 @@ run_proxy() {
 
     if [[ "$confirm" =~ ^[Yy]$ ]]; then
         echo -e "${GREEN}Building Docker image...${NC}"
-        sudo docker-compose -f "$compose_file" up -d || { echo -e "${RED}Docker Compose failed. Check logs for more information.${NC}"; exit 1; }
+        sudo docker-compose -f "$compose_file" -p "$proxy_port" up -d || { echo -e "${RED}Docker Compose failed. Check logs for more information.${NC}"; exit 1; }
     else
         echo -e "${YELLOW}Cancelled running WhatsApp Proxy.${NC}"
     fi
@@ -146,6 +214,17 @@ manage_proxy() {
         0)
             echo -e "${YELLOW}Checking WhatsApp Proxy status...${NC}"
             sudo docker-compose -f "$compose_file" ps
+
+          # Get server's public IP address
+            server_ip=$(curl -s https://ipinfo.io/ip)
+
+          # Generate the connection link
+            connection_link="https://wa.me/proxy?host=$server_ip&chatPort=443&mediaPort=587&chatTLS=1"
+            echo -e "${GREEN}To connect to WhatsApp Proxy, use the following link:${NC}"
+            echo -e "$connection_link"
+
+          # Generate QR code for the connection link
+            generate_qr_code "$connection_link"
             ;;
         1)
             echo -e "${YELLOW}Stopping WhatsApp Proxy...${NC}"
