@@ -1,6 +1,15 @@
 # WhatsApp Proxy Server Deployment Script
 
-[<img alt="github" src="https://img.shields.io/badge/github-MvsCode/Whatsapp_Proxy_Server-8da0cb?style=for-the-badge&labelColor=555555&logo=github" height="20">](https://github.com/MvsCode/Whatsapp_Proxy_Server)
+[![GitHub Repo][repo-shield]][repo-url]
+[![Stars][stars-shield]][stars-url]
+[![Forks][forks-shield]][forks-url]
+
+[repo-shield]: https://img.shields.io/badge/GitHub-MvsCode%2Fwhatsapp--proxy--server-brightgreen?style=for-the-badge&logo=github
+[repo-url]: https://github.com/MvsCode/whatsapp-proxy-server
+[stars-shield]: https://img.shields.io/github/stars/MvsCode/whatsapp-proxy-server.svg?style=for-the-badge&logo=github&color=yellow
+[stars-url]: https://github.com/MvsCode/whatsapp-proxy-server/stargazers
+[forks-shield]: https://img.shields.io/github/forks/MvsCode/whatsapp-proxy-server.svg?style=for-the-badge&logo=github&color=green
+[forks-url]: https://github.com/MvsCode/whatsapp-proxy-server/network/members
 
 [<img alt="github" src="https://img.shields.io/badge/github-WhatsApp/proxy-8da0cb?style=for-the-badge&labelColor=555555&logo=github" height="20">](https://github.com/WhatsApp/proxy)
 
