@@ -246,8 +246,8 @@ link:${NC}"
     esac
 }
 
-usage_install() {
-    echo -e "${RED}Usage: $0 install${NC}"
+install() {
+    echo -e "${RED}: $0 install${NC}"
     echo -e "  Update system packages, install Docker and Docker Compose, clone WhatsApp Proxy repository, and run the proxy service."
 }
 
