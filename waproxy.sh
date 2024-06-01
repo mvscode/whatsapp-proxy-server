@@ -181,6 +181,27 @@ check_proxy() {
     fi
 }
 
+remove_proxy() {
+    local proxy_dir="proxy"
+    local compose_file="/root/proxy/proxy/ops/docker-compose.yml"
+
+    echo -e "${RED}WARNING: This operation will stop and remove the WhatsApp Proxy service and all related files. This action is irreversible.${NC}"
+    read -rp "Are you sure you want to proceed? (Y/N) " -n 1 -r confirm
+    echo
+
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}Stopping WhatsApp Proxy...${NC}"
+        sudo docker-compose -f "$compose_file" stop
+        echo -e "${YELLOW}Removing WhatsApp Proxy service...${NC}"
+        sudo docker-compose -f "$compose_file" down -v --rmi all
+        echo -e "${YELLOW}Removing '$proxy_dir' directory...${NC}"
+        rm -rf "$proxy_dir"
+        echo -e "${GREEN}WhatsApp Proxy service has been removed.${NC}"
+    else
+        echo -e "${GREEN}Cancelled removing WhatsApp Proxy service.${NC}"
+    fi
+}
+
 # Function to manage the WhatsApp proxy service
 manage_proxy() {
     local proxy_dir="proxy"
@@ -190,14 +211,11 @@ manage_proxy() {
         0)
             echo -e "${YELLOW}Checking WhatsApp Proxy status...${NC}"
             sudo docker-compose -f "$compose_file" ps
-
-          # Get server's public IP address
+            # 获取服务器公网IP地址
             server_ip=$(curl -s https://ipinfo.io/ip)
-
-          # Generate the connection link
+            # 生成连接链接
             connection_link="https://wa.me/proxy?host=$server_ip&chatPort=443&mediaPort=587&chatTLS=1"
-            echo -e "${GREEN}To connect to WhatsApp Proxy, use the following
-link:${NC}"
+            echo -e "${GREEN}To connect to WhatsApp Proxy, use the following link:${NC}"
             echo -e "$connection_link"
             ;;
         1)
@@ -219,6 +237,9 @@ link:${NC}"
             echo -e "${GREEN}Configuring WhatsApp Proxy...${NC}"
             ${EDITOR:-nano} "$compose_file"
             ;;
+        5) # 新增删除选项
+            remove_proxy
+            ;;
         *)
             echo -e "${YELLOW}Manage WhatsApp Proxy Service${NC}"
             echo -e "0. Check WhatsApp Proxy Status"
@@ -226,11 +247,10 @@ link:${NC}"
             echo -e "2. Start WhatsApp Proxy"
             echo -e "3. Restart WhatsApp Proxy"
             echo -e "4. Configure WhatsApp Proxy"
-
-            read -rp "Enter your choice (0-4) or press Enter to exit: " choice
-
+            echo -e "5. Remove WhatsApp Proxy Service" # 新增删除选项
+            read -rp "Enter your choice (0-5) or press Enter to exit: " choice
             case "$choice" in
-                0|1|2|3|4)
+                0|1|2|3|4|5)
                     manage_proxy "$choice"
                     ;;
                 "")
@@ -246,40 +266,33 @@ link:${NC}"
     esac
 }
 
-install() {
-    echo -e "${RED}: $0 install${NC}"
-    echo -e "  Update system packages, install Docker and Docker Compose, clone WhatsApp Proxy repository, and run the proxy service."
+# 修改 usage_install 函数
+usage_install() {
+    echo -e "${RED}Usage: $0 <install|manage|remove>${NC}"
+    echo -e " install: Update system packages, install Docker and Docker Compose, clone WhatsApp Proxy repository, and run the proxy service."
+    echo -e " manage: Manage the WhatsApp Proxy service (start, stop, restart, configure)."
+    echo -e " remove: Stop and remove the WhatsApp Proxy service and all related files."
+
+    case "$1" in
+        install)
+            update_system
+            install_docker
+            install_docker_compose
+            run_proxy
+            check_proxy
+            ;;
+        manage)
+            manage_proxy
+            ;;
+        remove)
+            remove_proxy
+            ;;
+        *)
+            exit 1
+            ;;
+    esac
+    exit 0
 }
 
-case "$1" in
-    install)
-        update_system
-        install_docker
-        install_docker_compose
-        run_proxy
-        check_proxy
-        ;;
-    manage)
-        manage_proxy
-        ;;
-    status)
-        manage_proxy 0
-        ;;
-    stop)
-        manage_proxy 1
-        ;;
-    start)
-        manage_proxy 2
-        ;;
-    restart)
-        manage_proxy 3
-        ;;
-    config)
-        manage_proxy 4
-        ;;
-    *)
-        exit 1
-        ;;
-esac
-
-exit 0
+# 调用 usage_install 函数
+usage_install "$1"
