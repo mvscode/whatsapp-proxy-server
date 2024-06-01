@@ -197,6 +197,8 @@ manage_proxy() {
           # Generate the connection link
             connection_link="https://wa.me/proxy?host=$server_ip&chatPort=443&mediaPort=587&chatTLS=1"
             echo -e "${GREEN}To connect to WhatsApp Proxy, use the following
+link:${NC}"
+            echo -e "$connection_link"
             ;;
         1)
             echo -e "${YELLOW}Stopping WhatsApp Proxy...${NC}"
