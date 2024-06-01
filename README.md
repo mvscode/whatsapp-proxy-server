@@ -14,11 +14,11 @@ This Bash script automates the process of updating system packages, installing D
 
 
 ```bash
-wget https://raw.githubusercontent.com/MvsCode/Whatsapp-Proxy-Server/main/whatsapproxy.sh
+wget https://raw.githubusercontent.com/MvsCode/Whatsapp-Proxy-Server/main/waproxy.sh
 
 ```
 
 ```bash
-wget https://raw.githubusercontent.com/MvsCode/Whatsapp-Proxy-Server/main/whatsapproxy.sh && chmod +x whatsapproxy.sh && ./whatsapproxy.sh
+wget https://raw.githubusercontent.com/MvsCode/Whatsapp-Proxy-Server/main/waproxy.sh && chmod +x waproxy.sh && ./waproxy.sh
 
 ```
