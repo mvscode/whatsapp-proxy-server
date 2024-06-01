@@ -237,7 +237,7 @@ manage_proxy() {
             echo -e "${GREEN}Configuring WhatsApp Proxy...${NC}"
             ${EDITOR:-nano} "$compose_file"
             ;;
-        5) # 新增删除选项
+        5)
             remove_proxy
             ;;
         *)
@@ -247,7 +247,7 @@ manage_proxy() {
             echo -e "2. Start WhatsApp Proxy"
             echo -e "3. Restart WhatsApp Proxy"
             echo -e "4. Configure WhatsApp Proxy"
-            echo -e "5. Remove WhatsApp Proxy Service" # 新增删除选项
+            echo -e "5. Remove WhatsApp Proxy Service"
             read -rp "Enter your choice (0-5) or press Enter to exit: " choice
             case "$choice" in
                 0|1|2|3|4|5)
@@ -266,9 +266,9 @@ manage_proxy() {
     esac
 }
 
-# 修改 usage_install 函数
-usage_install() {
-    echo -e "${RED}Usage: $0 <install|manage|remove>${NC}"
+
+install() {
+    echo -e "${RED}$0 <install|manage|remove>${NC}"
     echo -e " install: Update system packages, install Docker and Docker Compose, clone WhatsApp Proxy repository, and run the proxy service."
     echo -e " manage: Manage the WhatsApp Proxy service (start, stop, restart, configure)."
     echo -e " remove: Stop and remove the WhatsApp Proxy service and all related files."
@@ -294,5 +294,4 @@ usage_install() {
     exit 0
 }
 
-# 调用 usage_install 函数
-usage_install "$1"
+install "$1"
