@@ -10,8 +10,6 @@
 [stars-url]: https://github.com/MvsCode/whatsapp-proxy-server/stargazers
 [forks-shield]: https://img.shields.io/github/forks/MvsCode/whatsapp-proxy-server.svg?style=flat-square&logo=github&color=green
 [forks-url]: https://github.com/MvsCode/whatsapp-proxy-server/network/members
-[![Downloads](https://img.shields.io/badge/Downloads-1k-green)](https://github.com/MvsCode/whatsapp-proxy-server/releases)
-
 
 [<img alt="github" src="https://img.shields.io/badge/github-WhatsApp/proxy-8da0cb?style=for-the-badge&labelColor=555555&logo=github" height="20">](https://github.com/WhatsApp/proxy)
 
