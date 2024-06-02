@@ -10,7 +10,7 @@
 # Default-Stop:      0 1 6
 # Short-Description: Manage WhatsApp Proxy Service
 # Description:       This script manages the WhatsApp Proxy service.
-#                    It can install, start, stop, restart, and configure the service.
+#                    It can install, start, stop, restart, configure and remove the service.
 ### END INIT INFO
 
 # Colors for better output formatting
