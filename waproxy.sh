@@ -235,12 +235,18 @@ manage_proxy() {
         0)
             echo -e "${YELLOW}Checking WhatsApp Proxy status...${NC}"
             sudo docker-compose -f "$compose_file" ps
-            # 获取服务器公网IP地址
+            
+               # Get server's public IP address
             server_ip=$(curl -s https://ipinfo.io/ip)
-            # 生成连接链接
+
+            # Generate the connection link
             connection_link="https://wa.me/proxy?host=$server_ip&chatPort=443&mediaPort=587&chatTLS=1"
             echo -e "${GREEN}To connect to WhatsApp Proxy, use the following link:${NC}"
             echo -e "$connection_link"
+
+            # Generate QR code for the connection link
+            echo -e "${GREEN}QR code for the connection link:${NC}"
+            generate_qr_code "$connection_link"
             ;;
         1)
             echo -e "${YELLOW}Stopping WhatsApp Proxy...${NC}"
