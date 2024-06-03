@@ -37,7 +37,7 @@ generate_qr_code() {
     fi
     
     # Generate QR code with smaller size
-    qr_code=$(qrencode -t ansiutf8 -s 3 "$connection_link")
+    qr_code=$(qrencode -t ansiutf8 -s 4 "$connection_link")
     
     # Display QR code
     echo "$qr_code"
