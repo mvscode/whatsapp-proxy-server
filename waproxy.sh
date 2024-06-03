@@ -19,6 +19,30 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
+# Function to generate QR code for the connection link
+generate_qr_code() {
+    local connection_link="$1"
+
+    # Install qrencode if not present
+    if ! command -v qrencode &> /dev/null; then
+        echo -e "${YELLOW}qrencode is not installed. Installing qrencode...${NC}"
+        if [ -f /etc/debian_version ]; then
+            sudo apt-get install -y qrencode || { echo -e "${RED}qrencode installation failed${NC}"; return 1; }
+        elif [ -f /etc/redhat-release ]; then
+            sudo yum install -y qrencode || { echo -e "${RED}qrencode installation failed${NC}"; return 1; }
+        else
+            echo -e "${RED}Unsupported Linux distribution.${NC}"
+            return 1
+        fi
+    fi
+
+    # Generate QR code
+    qr_code=$(qrencode -t ansiutf8 "$connection_link")
+
+    # Display QR code
+    echo "$qr_code"
+}
+
 # Function to check if system packages are up-to-date
 check_system_updates() {
     if [ -f /etc/debian_version ]; then
