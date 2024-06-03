@@ -22,7 +22,7 @@ NC='\033[0m' # No Color
 # Function to generate QR code for the connection link
 generate_qr_code() {
     local connection_link="$1"
-
+    
     # Install qrencode if not present
     if ! command -v qrencode &> /dev/null; then
         echo -e "${YELLOW}qrencode is not installed. Installing qrencode...${NC}"
@@ -35,10 +35,10 @@ generate_qr_code() {
             return 1
         fi
     fi
-
-    # Generate QR code
-    qr_code=$(qrencode -t ansiutf8 "$connection_link")
-
+    
+    # Generate QR code with smaller size
+    qr_code=$(qrencode -t ansiutf8 -s 3 "$connection_link")
+    
     # Display QR code
     echo "$qr_code"
 }
@@ -199,6 +199,18 @@ run_proxy() {
 check_proxy() {
     if sudo docker ps --format '{{.Names}}' | grep -q "whatsapp_proxy"; then
         echo -e "${GREEN}WhatsApp proxy service is running successfully.${NC}"
+        
+        # Get server's public IP address
+        server_ip=$(curl -s https://ipinfo.io/ip)
+        
+        # Generate the connection link
+        connection_link="https://wa.me/proxy?host=$server_ip&chatPort=443&mediaPort=587&chatTLS=1"
+        echo -e "${GREEN}To connect to WhatsApp Proxy, use the following link:${NC}"
+        echo -e "$connection_link"
+        
+        # Generate QR code for the connection link
+        echo -e "${GREEN}QR code for the connection link:${NC}"
+        generate_qr_code "$connection_link"
     else
         echo -e "${RED}WhatsApp proxy service failed to start.${NC}"
         exit 1
