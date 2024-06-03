@@ -236,7 +236,7 @@ manage_proxy() {
             echo -e "${YELLOW}Checking WhatsApp Proxy status...${NC}"
             sudo docker-compose -f "$compose_file" ps
             
-               # Get server's public IP address
+            # Get server's public IP address
             server_ip=$(curl -s https://ipinfo.io/ip)
 
             # Generate the connection link
