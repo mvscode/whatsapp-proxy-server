@@ -27,9 +27,9 @@ generate_qr_code() {
     if ! command -v qrencode &> /dev/null; then
         echo -e "${YELLOW}qrencode is not installed. Installing qrencode...${NC}"
         if [ -f /etc/debian_version ]; then
-            apt-get install -y qrencode || { echo -e "${RED}qrencode installation failed${NC}"; return 1; }
+            sudo apt-get install -y qrencode || { echo -e "${RED}qrencode installation failed${NC}"; return 1; }
         elif [ -f /etc/redhat-release ]; then
-            yum install -y qrencode || { echo -e "${RED}qrencode installation failed${NC}"; return 1; }
+            sudo yum install -y qrencode || { echo -e "${RED}qrencode installation failed${NC}"; return 1; }
         else
             echo -e "${RED}Unsupported Linux distribution.${NC}"
             return 1
@@ -46,8 +46,8 @@ generate_qr_code() {
 # Function to check if system packages are up-to-date
 check_system_updates() {
     if [ -f /etc/debian_version ]; then
-        apt-get update
-        if ! apt-get upgrade -s | grep -q "^0 upgraded"; then
+        sudo apt-get update
+        if ! sudo apt-get upgrade -s | grep -q "^0 upgraded"; then
         echo -e "${YELLOW}Warning: Updating system packages may cause unexpected issues. Please ensure you have a backup of your system before proceeding.${NC}"
             read -rp "Do you want to update to the latest packages? (Y/N) [Y]: " -n 1 -r confirm
             echo
@@ -62,7 +62,7 @@ check_system_updates() {
             echo -e "${GREEN}Your system packages are up-to-date.${NC}"
         fi
     elif [ -f /etc/redhat-release ]; then
-        yum check-update
+        sudo yum check-update
         if [ $? -ne 0 ]; then
             echo -e "${YELLOW}Your system packages are not up-to-date.${NC}"
             read -rp "Do you want to update to the latest packages? (Y/N) [Y]: " -n 1 -r confirm
@@ -86,14 +86,14 @@ check_system_updates() {
 # Function to update system packages
 update_system() {
     echo -e "${YELLOW}Backing up files before updating system packages...${NC}"
-    tar -czf /tmp/backup.tar.gz /etc/*
+    sudo tar -czf /tmp/backup.tar.gz /etc/*
 
     echo -e "${GREEN}Updating system packages...${NC}"
     if [ -f /etc/debian_version ]; then
-        apt-get update
-        apt-get full-upgrade -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
+        sudo apt-get update
+        sudo apt-get full-upgrade -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
     elif [ -f /etc/redhat-release ]; then
-        yum update -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
+        sudo yum update -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
     else
         echo -e "${RED}Unsupported Linux distribution.${NC}"
         exit 1
@@ -109,7 +109,7 @@ install_docker() {
             echo -e "${RED}Docker installation failed${NC}"
             exit 1
         fi
-        usermod -aG docker "$USER"
+        sudo usermod -aG docker "$USER"
         echo -e "${GREEN}Docker installed successfully. Please log out and log back in for changes to take effect.${NC}"
     else
         docker_version=$(docker --version | awk '{print $3}' | sed 's/,//')
@@ -122,9 +122,9 @@ install_docker_compose() {
     if ! command -v docker-compose &> /dev/null; then
         echo -e "${YELLOW}Docker Compose is not installed. Installing Docker Compose...${NC}"
         if [ -f /etc/debian_version ]; then
-            apt-get install -y docker-compose || { echo -e "${RED}Docker Compose installation failed${NC}"; exit 1; }
+         sudo apt-get install -y docker-compose || { echo -e "${RED}Docker Compose installation failed${NC}"; exit 1; }
         elif [ -f /etc/redhat-release ]; then
-            yum install -y docker-compose || { echo -e "${RED}Docker Compose installation failed${NC}"; exit 1; }
+         sudo yum install -y docker-compose || { echo -e "${RED}Docker Compose installation failed${NC}"; exit 1; }
         else
             echo -e "${RED}Unsupported Linux distribution.${NC}"
             exit 1
@@ -147,7 +147,7 @@ run_proxy() {
     local proxy_port=$default_port
 
     # Check if WhatsApp Proxy is already installed
-    if docker ps --format '{{.Names}}' | grep -q "whatsapp_proxy"; then
+    if sudo docker ps --format '{{.Names}}' | grep -q "whatsapp_proxy"; then
         echo -e "${YELLOW}WhatsApp Proxy is already installed.${NC}"
         read -rp "Do you want to reinstall? (Y/N) [N]: " -n 1 -r reinstall
         echo
@@ -171,7 +171,7 @@ run_proxy() {
 
     # Check if the default port is available
     while true; do
-        if ! lsof -i :"$proxy_port" -sTCP:LISTEN -t &> /dev/null; then
+        if ! sudo lsof -i :"$proxy_port" -sTCP:LISTEN -t &> /dev/null; then
             break
         else
             echo -e "${YELLOW}Port $proxy_port is already in use. Please enter a new port number.${NC}"
@@ -187,7 +187,7 @@ run_proxy() {
 
     if [[ "$confirm" =~ ^[Yy]$ ]]; then
         echo -e "${GREEN}Building Docker image...${NC}"
-        docker-compose -f "$compose_file" -p "$proxy_port" up -d || { echo -e "${RED}Docker Compose failed. Check logs for more information.${NC}"; exit 1; }
+        sudo docker-compose -f "$compose_file" -p "$proxy_port" up -d || { echo -e "${RED}Docker Compose failed. Check logs for more information.${NC}"; exit 1; }
     else
         echo -e "${YELLOW}Cancelled running WhatsApp Proxy.${NC}"
     fi
@@ -197,7 +197,7 @@ run_proxy() {
 
 # Check if WhatsApp proxy service is running
 check_proxy() {
-    if docker ps --format '{{.Names}}' | grep -q "whatsapp_proxy"; then
+    if sudo docker ps --format '{{.Names}}' | grep -q "whatsapp_proxy"; then
         echo -e "${GREEN}WhatsApp proxy service is running successfully.${NC}"
         
         # Get server's public IP address
@@ -227,9 +227,9 @@ remove_proxy() {
 
     if [[ "$confirm" =~ ^[Yy]$ ]]; then
         echo -e "${YELLOW}Stopping WhatsApp Proxy...${NC}"
-        docker-compose -f "$compose_file" stop
+        sudo docker-compose -f "$compose_file" stop
         echo -e "${YELLOW}Removing WhatsApp Proxy service...${NC}"
-        docker-compose -f "$compose_file" down -v --rmi all
+        sudo docker-compose -f "$compose_file" down -v --rmi all
         echo -e "${YELLOW}Removing '$proxy_dir' directory...${NC}"
         rm -rf "$proxy_dir"
         echo -e "${GREEN}WhatsApp Proxy service has been removed.${NC}"
@@ -246,7 +246,7 @@ manage_proxy() {
     case "$1" in
         0)
             echo -e "${YELLOW}Checking WhatsApp Proxy status...${NC}"
-            docker-compose -f "$compose_file" ps
+            sudo docker-compose -f "$compose_file" ps
             
             # Get server's public IP address
             server_ip=$(curl -s https://ipinfo.io/ip)
@@ -262,17 +262,17 @@ manage_proxy() {
             ;;
         1)
             echo -e "${YELLOW}Stopping WhatsApp Proxy...${NC}"
-            docker-compose -f "$compose_file" stop
+            sudo docker-compose -f "$compose_file" stop
             echo -e "${GREEN}WhatsApp Proxy stopped successfully.${NC}"
             ;;
         2)
             echo -e "${GREEN}Starting WhatsApp Proxy...${NC}"
-            docker-compose -f "$compose_file" start
+            sudo docker-compose -f "$compose_file" start
             echo -e "${GREEN}WhatsApp Proxy started successfully.${NC}"
             ;;
         3)
             echo -e "${YELLOW}Restarting WhatsApp Proxy...${NC}"
-            docker-compose -f "$compose_file" restart
+            sudo docker-compose -f "$compose_file" restart
             echo -e "${GREEN}WhatsApp Proxy restarted successfully.${NC}"
             ;;
         4)
