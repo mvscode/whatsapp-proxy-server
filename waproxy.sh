@@ -90,10 +90,10 @@ update_system() {
 
     echo -e "${GREEN}Updating system packages...${NC}"
     if [ -f /etc/debian_version ]; then
-        sudo apt-get update
-        sudo apt-get full-upgrade -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
+        apt-get update
+        apt-get full-upgrade -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
     elif [ -f /etc/redhat-release ]; then
-        sudo yum update -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
+        yum update -y || { echo -e "${RED}Update failed${NC}"; exit 1; }
     else
         echo -e "${RED}Unsupported Linux distribution.${NC}"
         exit 1
