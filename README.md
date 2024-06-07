@@ -23,12 +23,7 @@ This Bash script automates the process of updating system packages, installing D
 
 
 ```bash
-wget https://raw.githubusercontent.com/MvsCode/whatsapp-proxy-server/main/waproxy.sh
-
-```
-
-```bash
-wget https://raw.githubusercontent.com/MvsCode/whatsapp-proxy-server/main/waproxy.sh -O ./waproxy.sh && chmod +x waproxy.sh && ./waproxy.sh
+wget https://raw.githubusercontent.com/MvsCode/whatsapp-proxy-server/main/waproxy.sh -O ./waproxy.sh && chmod +x waproxy.sh && ./waproxy.sh install
 
 ```
 
