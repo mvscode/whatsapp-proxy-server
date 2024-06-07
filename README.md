@@ -28,7 +28,7 @@ wget https://raw.githubusercontent.com/MvsCode/whatsapp-proxy-server/main/waprox
 ```
 
 ```bash
-wget https://raw.githubusercontent.com/MvsCode/whatsapp-proxy-server/main/waproxy.sh && chmod +x waproxy.sh && ./waproxy.sh
+wget https://raw.githubusercontent.com/MvsCode/whatsapp-proxy-server/main/waproxy.sh -O ./waproxy.sh && chmod +x waproxy.sh && ./waproxy.sh
 
 ```
 
